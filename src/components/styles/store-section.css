@@ -1,0 +1,137 @@
+.store-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.store-header h2 {
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+.new-store-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.new-store-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.add-store-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-store-button:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.store-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.store-item {
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.store-item:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.store-item.selected {
+  background-color: #e5e7eb;
+  border: 2px solid #2563eb;
+}
+
+.store-item.selected:hover {
+  background-color: #e5e7eb;
+  transform: none;
+}
+
+.store-item h3 {
+  font-size: 1rem;
+  color: #1f2937;
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+.logout-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: #ef4444;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .store-section {
+    padding: 1rem;
+  }
+  
+  .store-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .new-store-input {
+    max-width: 100%;
+  }
+  
+  .store-list {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  
+  .logout-button {
+    position: static;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}

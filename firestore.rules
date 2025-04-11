@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reglas para la colección tiendas
+    match /tiendas/{tiendaId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Reglas para la colección desactivados
+    match /desactivados/{docId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Reglas para la colección productos
+    match /productos/{docId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
