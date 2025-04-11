@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, where, doc, updateDoc, deleteDoc, addDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 import BotonCerrarSesion from './BotonCerrarSesion';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ResumenGastos = () => {
   const [mostrarDesactivados, setMostrarDesactivados] = useState(false);
@@ -17,6 +18,11 @@ const ResumenGastos = () => {
   const [gastosMensuales, setGastosMensuales] = useState(null);
   const [mes, setMes] = useState(new Date().getMonth());
   const [año, setAño] = useState(new Date().getFullYear());
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Obtener tiendaId de los parámetros de URL o del estado de navegación
+  const tiendaId = location.state?.tiendaId || new URLSearchParams(window.location.search).get('tiendaId');
 
   const meses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -25,24 +31,33 @@ const ResumenGastos = () => {
 
   useEffect(() => {
     obtenerResumen(); // Cargar datos al montar el componente
-  }, [mes, año]); // Se ejecutará cuando cambie el mes o el año
+  }, [mes, año, tiendaId]); // Se ejecutará cuando cambie el mes, año o tiendaId
 
   const obtenerResumen = async () => {
     try {
-      const tiendasRef = collection(db, "tiendas");
-      const tiendasSnapshot = await getDocs(tiendasRef);
-      const tiendas = [];
-      tiendasSnapshot.forEach(doc => {
-        tiendas.push({ id: doc.id, ...doc.data() });
-      });
+      if (!tiendaId) {
+        throw new Error('No se ha especificado una tienda');
+      }
 
+      // Obtener datos solo de la tienda actual
+      const tiendaRef = doc(db, "tiendas", tiendaId);
+      const tiendaDoc = await getDoc(tiendaRef);
+
+      if (!tiendaDoc.exists()) {
+        throw new Error('Tienda no encontrada');
+      }
+
+      const tienda = tiendaDoc.data();
       let totalGastos = 0;
-      const gastosPorTienda = {};
+      const gastosPorTienda = {
+        tienda: tienda.nombre,
+        total: 0,
+        cantidadProductos: 0
+      };
 
-      // Procesar cada tienda
-      tiendas.forEach(tienda => {
-        const productos = tienda.productos || [];
-        productos.forEach(producto => {
+      // Procesar productos de la tienda actual
+      if (tienda.productos) {
+        tienda.productos.forEach(producto => {
           // Verificar si tiene fecha de compra
           if (!producto.fechaCompra) return;
 
@@ -63,28 +78,16 @@ const ResumenGastos = () => {
           if (fechaCompra >= primerDiaMes && fechaCompra <= ultimoDiaMes) {
             const precio = parseFloat(producto.precio) || 0;
             
-            if (!gastosPorTienda[tienda.id]) {
-              gastosPorTienda[tienda.id] = {
-                tienda: tienda.nombre,
-                total: 0,
-                cantidadProductos: 0
-              };
-            }
-
-            gastosPorTienda[tienda.id].total += precio;
-            gastosPorTienda[tienda.id].cantidadProductos += 1;
+            gastosPorTienda.total += precio;
+            gastosPorTienda.cantidadProductos += 1;
             totalGastos += precio;
           }
         });
-      });
-
-      // Convertir el objeto a array y ordenar por total
-      const gastosPorTiendaArray = Object.values(gastosPorTienda)
-        .sort((a, b) => b.total - a.total);
+      }
 
       setGastosMensuales({
         total: totalGastos,
-        porTienda: gastosPorTiendaArray
+        porTienda: [gastosPorTienda]
       });
     } catch (error) {
       console.error("Error al obtener resumen:", error);
@@ -230,6 +233,17 @@ const ResumenGastos = () => {
           <h2 style={{ color: '#2c3e50', marginBottom: '20px' }}>
             Total Gastado: ${gastosMensuales.total.toFixed(2)}
           </h2>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <span style={{ color: '#2c3e50', fontWeight: 'bold' }}>Tienda con más gastos:</span>
+              <span style={{ color: '#007bff' }}>{gastosMensuales.porTienda[0]?.tienda}</span>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <span style={{ color: '#2c3e50', fontWeight: 'bold' }}>Total productos:</span>
+              <span style={{ color: '#007bff' }}>{gastosMensuales.porTienda.reduce((sum, gasto) => sum + gasto.cantidadProductos, 0)}</span>
+            </div>
+          </div>
           
           <h3>Gastos por Tienda:</h3>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>

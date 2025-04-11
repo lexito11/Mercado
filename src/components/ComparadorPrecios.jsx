@@ -7,6 +7,7 @@ import './ComparadorPrecios.css';
 import BotonCerrarSesion from './BotonCerrarSesion';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from 'react-router-dom';
 
 // Registrar componentes necesarios de Chart.js
 Chart.register(...registerables);
@@ -19,6 +20,7 @@ const ComparadorPrecios = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mostrarGrafico, setMostrarGrafico] = useState(true);
+  const navigate = useNavigate();
 
   const obtenerProductosPorMes = async (fecha) => {
     try {
@@ -146,7 +148,7 @@ const ComparadorPrecios = () => {
   };
 
   // Calcular diferencia porcentual entre precios
-  const calcularDiferencia = (nombreProducto) => {
+  const calcularDiferencia = (nombreProducto, esMes1 = true) => {
     const producto1 = productos1.find(p => p.nombre.trim().toLowerCase() === nombreProducto.trim().toLowerCase());
     const producto2 = productos2.find(p => p.nombre.trim().toLowerCase() === nombreProducto.trim().toLowerCase());
     
@@ -212,6 +214,14 @@ const ComparadorPrecios = () => {
 
   return (
     <div className="comparador-container">
+      <button 
+        onClick={() => navigate(-1)}
+        className="back-button"
+        title="Volver atrás"
+      >
+        ❮ Atrás
+      </button>
+      
       <h2 className="comparador-titulo">Comparador de Precios por Mes</h2>
       
       {error && <div className="error-message">{error}</div>}
@@ -298,7 +308,6 @@ const ComparadorPrecios = () => {
                     <tr>
                       <th>Producto</th>
                       <th>Precio</th>
-                      <th>Variación</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -306,7 +315,6 @@ const ComparadorPrecios = () => {
                       <tr key={`mes1-${producto.id}`}>
                         <td>{producto.nombre}</td>
                         <td>${producto.precio}</td>
-                        <td>{calcularDiferencia(producto.nombre)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -320,7 +328,6 @@ const ComparadorPrecios = () => {
                     <tr>
                       <th>Producto</th>
                       <th>Precio</th>
-                      <th>Variación</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -328,9 +335,42 @@ const ComparadorPrecios = () => {
                       <tr key={`mes2-${producto.id}`}>
                         <td>{producto.nombre}</td>
                         <td>${producto.precio}</td>
-                        <td>{calcularDiferencia(producto.nombre)}</td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="tabla-variacion">
+                <h3>Variación de Precios</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Variación</th>
+                      <th>Diferencia</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productos1.map(producto => {
+                      const producto1 = productos1.find(p => p.nombre === producto.nombre);
+                      const producto2 = productos2.find(p => p.nombre === producto.nombre);
+                      const precio1 = parseFloat(producto1?.precio) || 0;
+                      const precio2 = parseFloat(producto2?.precio) || 0;
+                      const diferencia = precio2 - precio1;
+                      
+                      return (
+                        <tr key={`variacion-${producto.id}`}>
+                          <td>{producto.nombre}</td>
+                          <td>{calcularDiferencia(producto.nombre, true)}</td>
+                          <td>
+                            {diferencia !== 0 ? 
+                              `$${diferencia.toFixed(2)}` : 
+                              'Sin cambios'}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
