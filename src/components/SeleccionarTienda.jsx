@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import "./SeleccionarTienda.css";
 import "./styles/nav-buttons.css";
 import "./styles/store-section.css";
@@ -19,12 +19,14 @@ function SeleccionarTienda() {
   const [productosEliminados, setProductosEliminados] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [categoriasUnicas, setCategoriasUnicas] = useState([]);
+  const [mostrarDesactivados, setMostrarDesactivados] = useState(false);
   const [filtros, setFiltros] = useState({
     nombre: '',
     marca: '',
     precio: '',
     categoria: ''
   });
+  const navigate = useNavigate();
 
   // Esta parte es opcional: detectar cierre de ventana
   const handleVisibilityChange = () => {
@@ -96,8 +98,39 @@ function SeleccionarTienda() {
 
   // Cargar tiendas al inicio
   useEffect(() => {
-    // Obtener tiendas y productos eliminados
-    obtenerTiendas();
+    const cargarTiendas = async () => {
+      await obtenerTiendas();
+      
+      // Intentar cargar la última tienda seleccionada desde localStorage
+      const ultimaTiendaId = localStorage.getItem('ultimaTiendaSeleccionada');
+      
+      if (ultimaTiendaId) {
+        console.log('Cargando automáticamente la última tienda seleccionada:', ultimaTiendaId);
+        
+        try {
+          const tiendaRef = doc(db, "tiendas", ultimaTiendaId);
+          const tiendaSnapshot = await getDoc(tiendaRef);
+          
+          if (tiendaSnapshot.exists()) {
+            const tiendaActualizada = tiendaSnapshot.data();
+            const productosActualizados = Array.isArray(tiendaActualizada.productos) ? tiendaActualizada.productos : [];
+            
+            const tiendaConProductos = {
+              id: ultimaTiendaId,
+              ...tiendaActualizada,
+              productos: productosActualizados
+            };
+            
+            setTiendaSeleccionada(tiendaConProductos);
+            console.log('Tienda cargada automáticamente:', tiendaConProductos.nombre);
+          }
+        } catch (error) {
+          console.error("Error al cargar la última tienda:", error);
+        }
+      }
+    };
+    
+    cargarTiendas();
     
     // Detectar cambios de visibilidad
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -110,7 +143,7 @@ function SeleccionarTienda() {
   useEffect(() => {
     if (tiendaSeleccionada && tiendaSeleccionada.productos) {
       const categorias = new Set(tiendaSeleccionada.productos.map(p => p.categoria));
-      setCategoriasUnicas(['Todas', ...Array.from(categorias)]);
+      setCategoriasUnicas(['Filtrar Categoria', ...Array.from(categorias)]);
     }
   }, [tiendaSeleccionada]);
 
@@ -128,6 +161,19 @@ function SeleccionarTienda() {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
+
+  // Cargar datos del producto cuando se selecciona para editar
+  useEffect(() => {
+    if (productoEditando) {
+      setNuevoProducto({
+        nombre: productoEditando.nombre,
+        marca: productoEditando.marca,
+        precio: productoEditando.precio,
+        unidad: productoEditando.unidad,
+        categoria: productoEditando.categoria
+      });
+    }
+  }, [productoEditando]);
 
   const agregarTienda = async () => {
     if (nuevaTienda.trim() === "") return;
@@ -342,6 +388,10 @@ function SeleccionarTienda() {
         productos: productosActualizados
       };
 
+      // Guardar el ID de la tienda en localStorage para que otros componentes lo encuentren
+      localStorage.setItem('ultimaTiendaSeleccionada', tienda.id);
+      console.log('ID de tienda guardado en localStorage:', tienda.id);
+
       setTiendaSeleccionada(tiendaConProductos);
       
       // Actualizar la tienda en la lista local
@@ -435,7 +485,7 @@ function SeleccionarTienda() {
   useEffect(() => {
     if (tiendaSeleccionada && tiendaSeleccionada.productos) {
       const categorias = new Set(tiendaSeleccionada.productos.map(p => p.categoria));
-      setCategoriasUnicas(['Todas', ...Array.from(categorias)]);
+      setCategoriasUnicas(['Filtrar Categoria', ...Array.from(categorias)]);
     }
   }, [tiendaSeleccionada]);
 
@@ -495,55 +545,50 @@ function SeleccionarTienda() {
 
   const cancelarEdicion = () => {
     setProductoEditando(null);
+    setNuevoProducto({ 
+      nombre: "", 
+      marca: "", 
+      precio: "", 
+      unidad: "", 
+      categoria: "" 
+    });
   };
 
   if (cargando) {
-    return <div>Cargando...</div>;
+    return <div className="loading">Cargando...</div>;
   }
 
   return (
-    <div>
+    <div className="seleccionar-tienda-container">
+      <div className="header-center">
+        <h1 className="titulo-principal">Seleccionar Tienda</h1>
+      </div>
+      
       {tiendaSeleccionada ? (
         <div>
-          <h2>{tiendaSeleccionada.nombre}</h2>
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            gap: '10px',
-            width: '100%'
-          }}>
-            <Link to="/comparar-precios" style={{ textDecoration: 'none' }}>
-              <button 
-                style={{ 
-                  backgroundColor: 'red', 
-                  color: 'white', 
-                  padding: '12px 20px', 
-                  fontSize: '16px', 
-                  fontWeight: 'bold', 
-                  borderRadius: '4px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  width: '100%'
-                }}
-              >
+          <div className="tienda-header">
+            <button 
+              onClick={() => {
+                setTiendaSeleccionada(null);
+                localStorage.removeItem('ultimaTiendaSeleccionada');
+              }}
+              className="btn-volver"
+              title="Volver a la lista de tiendas"
+            >
+              <span>❮</span> Ver Todas La Tiendas
+            </button>
+            <h2>{tiendaSeleccionada.nombre}</h2>
+            <div className="tienda-header-spacer"></div> {/* Div vacío para centrar el título */}
+          </div>
+          <div className="botones-grandes-container">
+            <Link to="/comparar-precios" style={{ textDecoration: 'none' }} onClick={() => localStorage.setItem('ultimaTiendaSeleccionada', tiendaSeleccionada.id)}>
+              <button className="btn-comparar-precios">
                 COMPARAR PRECIOS POR MES
               </button>
             </Link>
             
-            <Link to="/resumen-gastos" style={{ textDecoration: 'none' }}>
-              <button 
-                style={{ 
-                  backgroundColor: '#3498db', 
-                  color: 'white', 
-                  padding: '12px 20px', 
-                  fontSize: '16px', 
-                  fontWeight: 'bold', 
-                  borderRadius: '4px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  width: '100%'
-                }}
-              >
+            <Link to="/resumen-gastos" style={{ textDecoration: 'none' }} onClick={() => localStorage.setItem('ultimaTiendaSeleccionada', tiendaSeleccionada.id)}>
+              <button className="btn-resumen-gastos">
                 RESUMEN DE GASTOS MENSUALES
               </button>
             </Link>
@@ -573,13 +618,13 @@ function SeleccionarTienda() {
               onChange={(e) => setFiltros(prev => ({ ...prev, categoria: e.target.value }))}
             >
               {categoriasUnicas.map((categoria, index) => (
-                <option key={index} value={categoria === 'Todas' ? '' : categoria}>
-                  {categoria}
+                <option key={index} value={categoria === 'Filtrar Categoria' ? '' : categoria}>
+                  {categoria === 'Filtrar Categoria' ? 'Filtrar Categoria' : categoria}
                 </option>
               ))}
             </select>
           </div>
-          <div>
+          <div className="form-agregar-producto">
             <input type="text" value={nuevoProducto.nombre} onChange={(e) => setNuevoProducto({ ...nuevoProducto, nombre: e.target.value })} placeholder="Nombre del producto" />
             <input type="text" value={nuevoProducto.marca} onChange={(e) => setNuevoProducto({ ...nuevoProducto, marca: e.target.value })} placeholder="Marca" />
             <input type="number" value={nuevoProducto.precio} onChange={(e) => setNuevoProducto({ ...nuevoProducto, precio: e.target.value })} placeholder="Precio" />
@@ -588,14 +633,7 @@ function SeleccionarTienda() {
             <button onClick={agregarProducto}>{productoEditando !== null ? "Actualizar Producto" : "Agregar Producto"}</button>
           </div>
 
-          <h3>Filtrar por Categoría</h3>
-          <select onChange={(e) => setCategoriaSeleccionada(e.target.value)}>
-            {categorias.map((categoria, index) => (
-              <option key={index} value={categoria}>{categoria}</option>
-            ))}
-          </select>
-
-          <h3>Lista de Productos</h3>
+          <h3 className="titulo-lista-productos">Lista de Productos</h3>
           <table>
             <thead>
               <tr>
@@ -619,60 +657,70 @@ function SeleccionarTienda() {
                   <td>{producto.fechaCompra ? new Date(producto.fechaCompra).toLocaleDateString() : 'No disponible'}</td>
                   <td>
                     <button onClick={() => editarProducto(index)}>Editar</button>
-                    <button onClick={() => eliminarProducto(index)}>Eliminar</button>
+                    <button onClick={() => eliminarProducto(index)}>Desactivar</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="tabla-productos-desactivados" style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="productos-desactivados-container">
+            <div className="productos-desactivados-header">
               <h3>Productos Desactivados</h3>
               <div>
-                <button onClick={limpiarProductosDesactivados} style={{ marginRight: '10px' }}>Limpiar Lista</button>
+                <button onClick={async () => {
+                  if (!mostrarDesactivados) {
+                    // Si vamos a mostrar los productos, recargamos desde Firebase
+                    const productosDesactivados = await cargarProductosDesactivados();
+                    setProductosEliminados(productosDesactivados);
+                  }
+                  setMostrarDesactivados(!mostrarDesactivados);
+                }} className="btn-productos-desactivados">
+                  {mostrarDesactivados ? 'Ocultar Productos Desactivados' : 'Ver Productos Desactivados'}
+                </button>
               </div>
             </div>
             
-            <div style={{ marginTop: '10px' }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Marca</th>
-                    <th>Precio</th>
-                    <th>Unidad</th>
-                    <th>Categoría</th>
-                    <th>Fecha Desactivación</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productosEliminados.map((producto, index) => (
-                    <tr key={producto.id || index}>
-                      <td>{producto.nombre}</td>
-                      <td>{producto.marca}</td>
-                      <td>{producto.precio}</td>
-                      <td>{producto.unidad}</td>
-                      <td>{producto.categoria}</td>
-                      <td>{
-                        (() => {
-                          try {
-                            return new Date(producto.fechaDesactivacion).toLocaleDateString();
-                          } catch (e) {
-                            return 'Fecha no disponible';
-                          }
-                        })()
-                      }</td>
+            {mostrarDesactivados && (
+              <div className="productos-desactivados-tabla">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Marca</th>
+                      <th>Precio</th>
+                      <th>Unidad</th>
+                      <th>Categoría</th>
+                      <th>Fecha Desactivación</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {productosEliminados.map((producto, index) => (
+                      <tr key={producto.id || index}>
+                        <td>{producto.nombre}</td>
+                        <td>{producto.marca}</td>
+                        <td>{producto.precio}</td>
+                        <td>{producto.unidad}</td>
+                        <td>{producto.categoria}</td>
+                        <td>{
+                          (() => {
+                            try {
+                              return new Date(producto.fechaDesactivacion).toLocaleDateString();
+                            } catch (e) {
+                              return 'Fecha no disponible';
+                            }
+                          })()
+                        }</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       ) : (
         <div>
-          <h2>Selecciona o Agrega una Tienda</h2>
           <div className="agregar-tienda">
             <input
               type="text"
@@ -697,7 +745,14 @@ function SeleccionarTienda() {
           )}
         </div>
       )}
-      <BotonCerrarSesion className="logout-button" />
+      <div className="cerrar-sesion-container">
+        <BotonCerrarSesion />
+        <Link to="/prueba-seguridad" style={{ textDecoration: 'none' }}>
+          <button className="btn-prueba-seguridad">
+            Pruebas de Seguridad
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

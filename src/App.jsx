@@ -10,6 +10,7 @@ import ComparadorPrecios from "./components/ComparadorPrecios";
 import MigracionDatos from './components/MigracionDatos';
 import ResumenGastos from './components/ResumenGastos';
 import Soporte from './components/Soporte';
+import PruebaSeguridad from './tests/PruebaSeguridad';
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -37,6 +38,7 @@ function App() {
         <Route path="/migracion" element={<MigracionDatos />} />
         <Route path="/resumen-gastos" element={usuario ? <ResumenGastos /> : <Navigate to="/" />} />
         <Route path="/soporte" element={usuario ? <Soporte /> : <Navigate to="/" />} />
+        <Route path="/prueba-seguridad" element={<PruebaSeguridad />} />
       </Routes>
     </Router>
   );

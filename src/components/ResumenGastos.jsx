@@ -18,11 +18,71 @@ const ResumenGastos = () => {
   const [gastosMensuales, setGastosMensuales] = useState(null);
   const [mes, setMes] = useState(new Date().getMonth());
   const [año, setAño] = useState(new Date().getFullYear());
+  const [tiendaActual, setTiendaActual] = useState(null);
+  const [tiendaId, setTiendaId] = useState(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Obtener tiendaId de los parámetros de URL o del estado de navegación
-  const tiendaId = location.state?.tiendaId || new URLSearchParams(window.location.search).get('tiendaId');
+  // Intentar obtener tiendaId de varias fuentes
+  useEffect(() => {
+    const buscarTiendaSeleccionada = async () => {
+      try {
+        // 1. Primero, intentar obtener tiendaId de los parámetros o estado
+        let idTienda = location.state?.tiendaId || new URLSearchParams(window.location.search).get('tiendaId');
+        
+        // 2. Si no hay tiendaId en los parámetros, intentar obtenerlo de localStorage
+        if (!idTienda) {
+          const ultimaTiendaSeleccionada = localStorage.getItem('ultimaTiendaSeleccionada');
+          console.log('Obteniendo tienda de localStorage:', ultimaTiendaSeleccionada);
+          if (ultimaTiendaSeleccionada) {
+            idTienda = ultimaTiendaSeleccionada;
+          }
+        }
+        
+        // 3. Si encontramos un ID de tienda, obtener los datos completos
+        if (idTienda) {
+          const tiendaRef = doc(db, 'tiendas', idTienda);
+          const tiendaSnapshot = await getDoc(tiendaRef);
+          
+          if (tiendaSnapshot.exists()) {
+            const tiendaData = {
+              id: tiendaSnapshot.id,
+              ...tiendaSnapshot.data()
+            };
+            setTiendaActual(tiendaData);
+            setTiendaId(idTienda);
+            console.log("Tienda encontrada:", tiendaData.nombre);
+          } else {
+            throw new Error('Tienda no encontrada');
+          }
+        } else {
+          // 4. Si no hay tiendaId, intentar obtener la primera tienda disponible
+          console.log("No se encontró ID de tienda, buscando la primera tienda disponible");
+          const tiendasRef = collection(db, 'tiendas');
+          const tiendasSnapshot = await getDocs(tiendasRef);
+          
+          if (!tiendasSnapshot.empty) {
+            const primeraTienda = tiendasSnapshot.docs[0];
+            const tiendaData = {
+              id: primeraTienda.id,
+              ...primeraTienda.data()
+            };
+            setTiendaActual(tiendaData);
+            setTiendaId(primeraTienda.id);
+            console.log("Primera tienda encontrada:", tiendaData.nombre);
+          } else {
+            throw new Error("No hay tiendas disponibles");
+          }
+        }
+      } catch (err) {
+        console.error("Error al buscar tienda:", err);
+        setError("No se pudo encontrar la tienda seleccionada. Por favor, regresa y selecciona una tienda.");
+      }
+    };
+    
+    buscarTiendaSeleccionada();
+  }, [location]);
 
   const meses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -30,12 +90,15 @@ const ResumenGastos = () => {
   ];
 
   useEffect(() => {
-    obtenerResumen(); // Cargar datos al montar el componente
+    if (tiendaId) {
+      obtenerResumen(); // Cargar datos cuando tengamos el tiendaId
+    }
   }, [mes, año, tiendaId]); // Se ejecutará cuando cambie el mes, año o tiendaId
 
   const obtenerResumen = async () => {
     try {
       if (!tiendaId) {
+        console.error("No hay ID de tienda para obtener resumen");
         throw new Error('No se ha especificado una tienda');
       }
 
@@ -183,7 +246,39 @@ const ResumenGastos = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', color: '#2c3e50' }}>Resumen de Gastos Mensuales</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => navigate('/seleccionar-tienda')}
+            className="back-button"
+            title="Volver a la tienda"
+          >
+            <span>❮</span> Volver a Tienda
+          </button>
+        </div>
+      </div>
+      
+      <h1 style={{ textAlign: 'center', color: '#2c3e50' }}>
+        Resumen de Gastos Mensuales
+        {tiendaActual && (
+          <span style={{ fontSize: '0.8em', display: 'block', color: '#3498db', marginTop: '5px' }}>
+            {tiendaActual.nombre}
+          </span>
+        )}
+      </h1>
+      
+      {error && (
+        <div style={{ 
+          backgroundColor: '#f8d7da', 
+          color: '#721c24', 
+          padding: '15px', 
+          borderRadius: '4px', 
+          marginBottom: '20px',
+          textAlign: 'center' 
+        }}>
+          {error}
+        </div>
+      )}
       
       <div style={{ 
         backgroundColor: '#f8f9fa', 

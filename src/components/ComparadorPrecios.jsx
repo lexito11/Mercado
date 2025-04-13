@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../config/firebaseConfig';
 import { Bar } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
@@ -7,7 +7,7 @@ import './ComparadorPrecios.css';
 import BotonCerrarSesion from './BotonCerrarSesion';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 // Registrar componentes necesarios de Chart.js
 Chart.register(...registerables);
@@ -20,44 +20,117 @@ const ComparadorPrecios = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mostrarGrafico, setMostrarGrafico] = useState(true);
+  const [tiendaActual, setTiendaActual] = useState(null);
+  const [tiendaId, setTiendaId] = useState(null);
   const navigate = useNavigate();
-
+  const params = useParams();
+  
+  // Al iniciar el componente, intentamos obtener la tienda actual
+  useEffect(() => {
+    const buscarTiendaSeleccionada = async () => {
+      try {
+        // Verificamos si hay un tiendaId en localStorage (lo más probable)
+        const ultimaTiendaSeleccionada = localStorage.getItem('ultimaTiendaSeleccionada');
+        
+        console.log('Intentando obtener última tienda seleccionada del localStorage:', ultimaTiendaSeleccionada);
+        
+        // Si hay una tienda en localStorage
+        if (ultimaTiendaSeleccionada) {
+          const tiendaRef = doc(db, 'tiendas', ultimaTiendaSeleccionada);
+          const tiendaSnapshot = await getDoc(tiendaRef);
+          
+          if (tiendaSnapshot.exists()) {
+            const tiendaData = {
+              id: tiendaSnapshot.id,
+              ...tiendaSnapshot.data()
+            };
+            console.log("Tienda encontrada en localStorage:", tiendaData.nombre);
+            setTiendaActual(tiendaData);
+            setTiendaId(ultimaTiendaSeleccionada);
+            return; // Terminamos si encontramos la tienda
+          }
+        }
+        
+        // Si llegamos aquí, intentamos obtener la primera tienda disponible
+        console.log("No se encontró tienda en localStorage, buscando la primera tienda disponible");
+        const tiendasRef = collection(db, 'tiendas');
+        const tiendasSnapshot = await getDocs(tiendasRef);
+        
+        if (!tiendasSnapshot.empty) {
+          const primeraTienda = tiendasSnapshot.docs[0];
+          const tiendaData = {
+            id: primeraTienda.id,
+            ...primeraTienda.data()
+          };
+          console.log("Primera tienda encontrada:", tiendaData.nombre);
+          setTiendaActual(tiendaData);
+          setTiendaId(primeraTienda.id);
+        } else {
+          throw new Error("No hay tiendas disponibles");
+        }
+      } catch (err) {
+        console.error("Error al buscar tienda:", err);
+        setError("No se pudo encontrar la tienda seleccionada. Por favor, regresa y selecciona una tienda.");
+      }
+    };
+    
+    buscarTiendaSeleccionada();
+  }, []);
+  
   const obtenerProductosPorMes = async (fecha) => {
     try {
+      if (!tiendaId) {
+        console.error("No hay ID de tienda para filtrar productos");
+        throw new Error('No se ha especificado una tienda');
+      }
+
       const inicio = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
       const fin = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
-
-      // Obtener todas las tiendas
-      const tiendasRef = collection(db, 'tiendas');
-      const tiendasSnapshot = await getDocs(tiendasRef);
       
-      // Procesar productos de todas las tiendas
+      console.log(`Buscando productos para tienda ${tiendaId} entre ${inicio.toISOString()} y ${fin.toISOString()}`);
+
+      // Obtener la tienda específica
+      const tiendaRef = doc(db, 'tiendas', tiendaId);
+      const tiendaDoc = await getDoc(tiendaRef);
+      
+      if (!tiendaDoc.exists()) {
+        console.error(`Tienda con ID ${tiendaId} no encontrada`);
+        throw new Error('Tienda no encontrada');
+      }
+      
+      const tienda = tiendaDoc.data();
+      console.log(`Tienda: ${tienda.nombre}, Productos: ${tienda.productos ? tienda.productos.length : 0}`);
+      
       const productos = [];
-      tiendasSnapshot.forEach(doc => {
-        const tienda = doc.data();
-        if (tienda.productos) {
-          tienda.productos.forEach(producto => {
-            // Convertir la fecha si es un Timestamp
-            let fechaCompra;
-            if (typeof producto.fechaCompra === 'object' && producto.fechaCompra.toDate) {
-              fechaCompra = producto.fechaCompra.toDate();
-            } else {
-              fechaCompra = new Date(producto.fechaCompra);
-            }
+      
+      if (tienda.productos && Array.isArray(tienda.productos)) {
+        tienda.productos.forEach(producto => {
+          // Convertir la fecha si es un Timestamp
+          let fechaCompra;
+          if (typeof producto.fechaCompra === 'object' && producto.fechaCompra.toDate) {
+            fechaCompra = producto.fechaCompra.toDate();
+          } else if (producto.fechaCompra) {
+            fechaCompra = new Date(producto.fechaCompra);
+          } else {
+            console.warn(`Producto sin fecha: ${producto.nombre}`);
+            return; // Saltar este producto
+          }
 
-            // Verificar si la fecha está dentro del rango
-            if (fechaCompra >= inicio && fechaCompra <= fin) {
-              productos.push({
-                ...producto,
-                tienda: tienda.nombre,
-                fechaCompra: fechaCompra,
-                id: doc.id // Agregamos el ID de la tienda
-              });
-            }
-          });
-        }
-      });
-
+          // Verificar si la fecha está dentro del rango
+          if (fechaCompra >= inicio && fechaCompra <= fin) {
+            productos.push({
+              ...producto,
+              tienda: tienda.nombre,
+              fechaCompra: fechaCompra,
+              id: tiendaDoc.id + '-' + (producto.id || Math.random().toString(36).substr(2, 9))
+            });
+          }
+        });
+      } else {
+        console.warn(`No se encontraron productos en la tienda ${tienda.nombre} o no es un array`);
+      }
+      
+      console.log(`Productos encontrados para ${tienda.nombre} en ${fecha.toLocaleDateString()}: ${productos.length}`);
       return productos;
     } catch (error) {
       console.error("Error al obtener productos:", error);
@@ -215,14 +288,20 @@ const ComparadorPrecios = () => {
   return (
     <div className="comparador-container">
       <button 
-        onClick={() => navigate(-1)}
+        onClick={() => {
+          navigate('/seleccionar-tienda');
+          // También podríamos eliminar la tienda seleccionada para forzar mostrar la lista completa
+          // localStorage.removeItem('ultimaTiendaSeleccionada');
+        }}
         className="back-button"
-        title="Volver atrás"
+        title="Volver a la página principal"
       >
-        ❮ Atrás
+        ❮ Volver a Tiendas
       </button>
       
-      <h2 className="comparador-titulo">Comparador de Precios por Mes</h2>
+      <h2 className="comparador-titulo">
+        Comparador de Precios por Mes {tiendaActual && ` - ${tiendaActual.nombre}`}
+      </h2>
       
       {error && <div className="error-message">{error}</div>}
 
@@ -279,7 +358,7 @@ const ComparadorPrecios = () => {
                   plugins: {
                     title: {
                       display: true,
-                      text: 'Comparación de Precios por Producto'
+                      text: `Comparación de Precios por Producto ${tiendaActual ? '- ' + tiendaActual.nombre : ''}`
                     },
                     tooltip: {
                       callbacks: {

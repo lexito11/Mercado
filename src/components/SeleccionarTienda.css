@@ -1,78 +1,585 @@
 /* Estilos generales */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
-  padding: 20px;
-  background-color: #f4f4f4;
+  padding: 0;
+  background-color: #f7f9fc;
+  color: #333;
+  min-height: 100vh;
 }
 
+/* Contenedor principal */
 .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+h1, h2, h3, h4 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+/* Estilos para la selección de tienda */
+.seleccionar-tienda-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.titulo-principal {
+  font-size: 42px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 auto 40px auto;
+  color: transparent;
+  background-image: linear-gradient(to right, #F44336, #2196F3);
+  background-clip: text;
+  -webkit-background-clip: text;
+  padding-bottom: 15px;
+  max-width: 80%;
+  position: relative;
+}
+
+.titulo-principal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 3px;
+  background-color: #3498db;
+  border-radius: 3px;
+}
+
+/* Formulario para agregar tienda */
+.agregar-tienda {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-/* Estilos para la sección de agregar productos */
-.product-form {
-  background: white;
+  margin-bottom: 30px;
+  background-color: #f8f9fa;
   padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 45%;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  align-items: center;
 }
 
-.product-form h2 {
-  margin-bottom: 15px;
+.agregar-tienda input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.3s;
+  outline: none;
+  margin-right: 15px;
 }
 
-.product-form input {
+.agregar-tienda input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+}
+
+.agregar-tienda button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.agregar-tienda button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Lista de tiendas */
+.lista-tiendas {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 20px;
+}
+
+.lista-tiendas li {
+  margin-bottom: 0;
+}
+
+.lista-tiendas button {
   width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 15px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
 }
 
-.product-form button {
+.lista-tiendas button:hover {
+  border-color: #3498db;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.lista-tiendas button:before {
+  content: '🏪';
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Estilos para cuando una tienda está seleccionada */
+.tienda-seleccionada {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.tienda-seleccionada h2 {
+  color: #3498db;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Botones de acción */
+.botones-accion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.botones-accion a {
+  text-decoration: none;
+}
+
+.btn-accion {
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-accion-rojo {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-accion-rojo:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.btn-accion-azul {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-accion-azul:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* Filtros y formularios */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.filtros input, 
+.filtros select {
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.filtros select {
+  background-color: white;
+}
+
+/* Tabla de productos */
+table {
   width: 100%;
-  padding: 10px;
-  background: #28a745;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+thead {
+  background-color: #3498db;
+  color: black;
+}
+
+th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+}
+
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Estilos para los botones de acciones en la tabla */
+td button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 5px;
+  transition: all 0.2s;
+}
+
+td button:first-child {
+  background-color: #3498db;
+  color: white;
+}
+
+td button:first-child:hover {
+  background-color: #2980b9;
+}
+
+td button:last-child {
+  background-color: #e74c3c;
+  color: white;
+}
+
+td button:last-child:hover {
+  background-color: #c0392b;
+}
+
+/* Botón para cerrar sesión */
+.cerrar-sesion-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  gap: 120px;
+  width: 100%;
+  padding: 0;
+}
+
+.cerrar-sesion-container button {
+  min-width: 180px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.logout-button {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+
+.logout-button:hover {
+  background-color: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+}
+
+/* Mensaje de carga */
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #7f8c8d;
+}
+
+.header-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.cerrar-sesion-container > :last-child {
+  margin-left: 20px;
+}
+
+/* Estilos para los inputs de agregar productos */
+.tienda-seleccionada input[type="text"],
+.tienda-seleccionada input[type="number"] {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tienda-seleccionada input[type="text"]:focus,
+.tienda-seleccionada input[type="number"]:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  outline: none;
+}
+
+.tienda-seleccionada button {
+  background-color: #3498db;
   color: white;
   border: none;
   border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-left: 10px;
+}
+
+.tienda-seleccionada button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilos para el formulario de agregar productos */
+.form-agregar-producto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.form-agregar-producto input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 150px;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-agregar-producto input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  outline: none;
+}
+
+.form-agregar-producto button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.form-agregar-producto button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Botón para mostrar/ocultar productos desactivados */
+.tabla-productos-desactivados button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.tabla-productos-desactivados button:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Botón - Ver productos desactivados */
+.btn-productos-desactivados {
+  margin-right: 10px;
+  background-color: #d32f2f;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
   cursor: pointer;
 }
 
-.product-form button:hover {
-  background: #218838;
+/* Botón - Volver a lista de tiendas */
+.btn-volver {
+  background-color: #d32f2f;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s;
+  min-width: 180px;
+  font-size: 16px;
+  height: 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
-/* Estilos para la tabla de productos */
-.product-list {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 50%;
+.btn-volver:hover {
+  background-color: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
 }
 
-.product-list h3 {
+.btn-volver span {
+  font-size: 18px;
+}
+
+/* Container para el título de tienda */
+.tienda-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
 }
 
-.product-list table {
+.tienda-header-spacer {
+  width: 185px;
+}
+
+/* Contenedor de botones de acción */
+.botones-grandes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-  border-collapse: collapse;
 }
 
-.product-list th, .product-list td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-.product-list th {
-  background: #007bff;
+/* Botón grande para comparar precios */
+.btn-comparar-precios {
+  background-color: #d32f2f;
   color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Botón grande para resumen de gastos */
+.btn-resumen-gastos {
+  background-color: #3498db;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Sección para productos desactivados */
+.productos-desactivados-header {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+}
+
+.productos-desactivados-container {
+  margin-top: 20px; 
+  border-top: 1px solid #ccc; 
+  padding-top: 10px;
+}
+
+.productos-desactivados-tabla {
+  margin-top: 10px;
+}
+
+/* Título "Lista de Productos" */
+.titulo-lista-productos {
+  color: #000000;
+  font-weight: bold;
+}
+
+/* Botón de pruebas de seguridad */
+.btn-prueba-seguridad {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
 }

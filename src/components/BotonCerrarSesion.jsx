@@ -1,5 +1,6 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
+import "./BotonCerrarSesion.css";
 
 function BotonCerrarSesion() {
   const handleLogout = async () => {
@@ -10,7 +11,14 @@ function BotonCerrarSesion() {
     }
   };
 
-  return <button onClick={handleLogout}>Cerrar Sesión</button>;
+  return (
+    <button 
+      className="btn-cerrar-sesion" 
+      onClick={handleLogout}
+    >
+      <i className="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </button>
+  );
 }
 
 export default BotonCerrarSesion;
