@@ -12,18 +12,41 @@ import ResumenGastos from './components/ResumenGastos';
 import Soporte from './components/Soporte';
 import Asistencia from './components/Asistencia';
 import PruebaSeguridad from './tests/PruebaSeguridad';
+import 'material-design-lite/material.min.css';
+import 'material-design-lite/material.min.js';
 
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
+    // Inicializar MDL de manera segura
+    const initializeMDL = () => {
+      if (window.componentHandler) {
+        try {
+          window.componentHandler.upgradeDom();
+        } catch (error) {
+          console.warn('Error al inicializar MDL:', error);
+        }
+      }
+    };
+
+    // Inicializar MDL después de que el DOM esté listo
+    if (document.readyState === 'complete') {
+      initializeMDL();
+    } else {
+      window.addEventListener('load', initializeMDL);
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUsuario(user);
       setCargando(false);
     });
   
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      window.removeEventListener('load', initializeMDL);
+    };
   }, []);
   
   if (cargando) return <p>Cargando...</p>;

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { auth, db } from '../config/firebaseConfig';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { Link, useNavigate } from 'react-router-dom';
 import './PruebaSeguridad.css';
-import { Link } from 'react-router-dom';
 
 const PruebaSeguridad = () => {
+  const navigate = useNavigate();
   // Estado para almacenar resultados de pruebas
   const [resultados, setResultados] = useState({
     seguridad: [],
@@ -157,6 +159,15 @@ const PruebaSeguridad = () => {
     return pruebas;
   };
 
+  const handleCerrarSesion = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   // Renderizar resultados
   return (
     <div className="prueba-seguridad-container">
@@ -267,9 +278,14 @@ const PruebaSeguridad = () => {
             </table>
           </div>
 
-          <Link to="/seleccionar-tienda" className="boton-volver">
-            Volver a Tiendas
-          </Link>
+          <div className="botones-container">
+            <Link to="/seleccionar-tienda" className="boton-volver">
+              Volver a Tiendas
+            </Link>
+            <button onClick={handleCerrarSesion} className="boton-cerrar-sesion">
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
       )}
     </div>

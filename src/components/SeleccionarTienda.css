@@ -304,40 +304,41 @@ td button:last-child:hover {
 /* Botón para cerrar sesión */
 .cerrar-sesion-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin-top: 30px;
-  gap: 120px;
+  gap: 10px;
   width: 100%;
-  padding: 0;
+  padding: 20px;
 }
 
-.cerrar-sesion-container button {
-  min-width: 180px;
-  padding: 8px 16px;
+.btn-cerrar-sesion,
+.btn-asistencia,
+.btn-prueba-seguridad {
+  width: calc(100% - 40px);
+  margin: 0 20px;
+  padding: 12px 0;
+  border: none;
+  border-radius: 6px;
   font-size: 16px;
   font-weight: 500;
-  border-radius: 4px;
   cursor: pointer;
   text-align: center;
+  display: block;
 }
 
-.logout-button {
-  background-color: #d32f2f;
+.btn-cerrar-sesion {
+  background-color: #e74c3c;
   color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: bold;
 }
 
-.logout-button:hover {
-  background-color: #b71c1c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+.btn-asistencia {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-prueba-seguridad {
+  background-color: #2ecc71;
+  color: white;
 }
 
 /* Mensaje de carga */
@@ -709,6 +710,29 @@ td button:last-child:hover {
   select {
     font-size: 16px !important;
   }
+
+  .cerrar-sesion-container {
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+
+  .btn-cerrar-sesion,
+  .btn-asistencia,
+  .btn-prueba-seguridad {
+    width: calc(100% - 20px);
+    margin: 0 10px;
+    padding: 15px 0;
+  }
+
+  /* Agregar padding al contenedor principal para evitar que los botones tapen contenido */
+  .seleccionar-tienda-container {
+    padding-bottom: 200px;
+  }
 }
 
 /* Ajustes específicos para pantallas muy pequeñas */
@@ -731,6 +755,18 @@ td button:last-child:hover {
   .btn-prueba-seguridad {
     padding: 10px;
     font-size: 13px;
+  }
+
+  .cerrar-sesion-container {
+    padding: 10px;
+  }
+
+  .cerrar-sesion-container button,
+  .btn-asistencia,
+  .btn-prueba-seguridad {
+    width: 95%;
+    padding: 10px 0;
+    font-size: 14px;
   }
 }
 
