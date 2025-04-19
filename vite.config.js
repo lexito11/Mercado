@@ -5,10 +5,10 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Mercado/',
+  base: '/mercado/',
   build: {
     outDir: 'dist',
-    assetsDir: '',
+    assetsDir: 'assets',
     emptyOutDir: true,
     rollupOptions: {
       input: {
