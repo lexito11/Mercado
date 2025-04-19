@@ -106,13 +106,14 @@ h1, h2, h3, h4 {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .lista-tiendas li {
   margin-bottom: 0;
+  width: 100%;
 }
 
 .lista-tiendas button {
@@ -127,15 +128,16 @@ h1, h2, h3, h4 {
   color: #333;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   display: flex;
   align-items: center;
+  margin-bottom: 5px;
 }
 
 .lista-tiendas button:hover {
   border-color: #3498db;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .lista-tiendas button:before {
@@ -576,12 +578,14 @@ td button:last-child:hover {
 
 /* Botón de pruebas de seguridad */
 .btn-prueba-seguridad {
-  background-color: #4CAF50;
+  background-color: #2ecc71;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
 }
 
 .btn-asistencia {
@@ -598,4 +602,98 @@ td button:last-child:hover {
 
 .btn-asistencia:hover {
   background-color: #2980b9;
+}
+
+/* Contenedor de botones inferiores */
+.botones-inferiores {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.btn-asistencia,
+.btn-prueba-seguridad {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-asistencia {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-prueba-seguridad {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-asistencia:hover,
+.btn-prueba-seguridad:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Media Queries para Responsive Design */
+@media screen and (max-width: 768px) {
+  .seleccionar-tienda-container {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .titulo-principal {
+    font-size: 32px;
+    margin-bottom: 30px;
+  }
+
+  .agregar-tienda {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .agregar-tienda input {
+    margin-right: 0;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .agregar-tienda button {
+    width: 100%;
+  }
+
+  .botones-inferiores {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .btn-asistencia,
+  .btn-prueba-seguridad {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .titulo-principal {
+    font-size: 28px;
+  }
+
+  .lista-tiendas button {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .btn-asistencia,
+  .btn-prueba-seguridad {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 }
