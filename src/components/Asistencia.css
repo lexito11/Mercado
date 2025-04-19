@@ -1,0 +1,253 @@
+.asistencia-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.header h1 {
+  margin: 0 auto;
+  font-size: 1.8rem;
+  color: #2c3e50;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #3498db;
+  cursor: pointer;
+  padding: 0.5rem;
+  position: absolute;
+  left: 0;
+}
+
+.asistencia-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.asistencia-card h2 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.mensaje-exito {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}
+
+.mensaje-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.enviar-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.enviar-btn:hover {
+  background-color: #2980b9;
+}
+
+.enviar-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.botones-envio {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.copiar-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.copiar-btn:hover {
+  background-color: #27ae60;
+}
+
+.metodo-alternativo-btn {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.metodo-alternativo-btn:hover {
+  background-color: #d35400;
+}
+
+.enviar-btn:disabled,
+.copiar-btn:disabled,
+.metodo-alternativo-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+@media (min-width: 600px) {
+  .botones-envio {
+    flex-direction: row;
+  }
+  
+  .copiar-btn, .enviar-btn, .metodo-alternativo-btn {
+    width: auto;
+    flex: 1;
+  }
+}
+
+.informacion-contacto,
+.preguntas-frecuentes {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.informacion-contacto h3,
+.preguntas-frecuentes h3 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.informacion-contacto p {
+  margin-bottom: 0.5rem;
+}
+
+.informacion-contacto ul {
+  padding-left: 1.5rem;
+}
+
+.informacion-contacto li {
+  margin-bottom: 0.5rem;
+}
+
+.pregunta {
+  margin-bottom: 1.5rem;
+}
+
+.pregunta h4 {
+  color: #34495e;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.pregunta p {
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.contacto-directo {
+  margin-top: 20px;
+  text-align: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.contacto-directo p {
+  margin: 0;
+}
+
+.contacto-directo a,
+.informacion-contacto a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contacto-directo a:hover,
+.informacion-contacto a:hover {
+  text-decoration: underline;
+  color: #2980b9;
+}
+
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .asistencia-card h2 {
+    font-size: 1.3rem;
+  }
+} 

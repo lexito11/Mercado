@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, where, doc, updateDoc, deleteDoc, addDoc, getDoc } from 'firebase/firestore';
-import { db } from '../config/firebaseConfig';
+import { db, auth } from '../config/firebaseConfig';
 import BotonCerrarSesion from './BotonCerrarSesion';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -28,6 +28,13 @@ const ResumenGastos = () => {
   useEffect(() => {
     const buscarTiendaSeleccionada = async () => {
       try {
+        // Verificar si el usuario está autenticado
+        if (!auth.currentUser) {
+          throw new Error('Usuario no autenticado');
+        }
+        
+        const userId = auth.currentUser.uid;
+        
         // 1. Primero, intentar obtener tiendaId de los parámetros o estado
         let idTienda = location.state?.tiendaId || new URLSearchParams(window.location.search).get('tiendaId');
         
@@ -42,7 +49,7 @@ const ResumenGastos = () => {
         
         // 3. Si encontramos un ID de tienda, obtener los datos completos
         if (idTienda) {
-          const tiendaRef = doc(db, 'tiendas', idTienda);
+          const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', idTienda);
           const tiendaSnapshot = await getDoc(tiendaRef);
           
           if (tiendaSnapshot.exists()) {
@@ -59,7 +66,7 @@ const ResumenGastos = () => {
         } else {
           // 4. Si no hay tiendaId, intentar obtener la primera tienda disponible
           console.log("No se encontró ID de tienda, buscando la primera tienda disponible");
-          const tiendasRef = collection(db, 'tiendas');
+          const tiendasRef = collection(db, 'usuarios', userId, 'tiendas');
           const tiendasSnapshot = await getDocs(tiendasRef);
           
           if (!tiendasSnapshot.empty) {
@@ -102,8 +109,14 @@ const ResumenGastos = () => {
         throw new Error('No se ha especificado una tienda');
       }
 
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      const userId = auth.currentUser.uid;
+
       // Obtener datos solo de la tienda actual
-      const tiendaRef = doc(db, "tiendas", tiendaId);
+      const tiendaRef = doc(db, "usuarios", userId, "tiendas", tiendaId);
       const tiendaDoc = await getDoc(tiendaRef);
 
       if (!tiendaDoc.exists()) {
@@ -171,7 +184,12 @@ const ResumenGastos = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const productoRef = doc(db, 'productos', editandoProducto.id);
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      const userId = auth.currentUser.uid;
+      const productoRef = doc(db, 'usuarios', userId, 'productos', editandoProducto.id);
       await updateDoc(productoRef, {
         ...productoEditado,
         precio: parseFloat(productoEditado.precio) || 0
@@ -186,13 +204,19 @@ const ResumenGastos = () => {
   const handleDelete = async (producto) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
       try {
+        if (!auth.currentUser) {
+          throw new Error('Usuario no autenticado');
+        }
+        
+        const userId = auth.currentUser.uid;
+        
         // 1. Obtener el producto completo
-        const productoRef = doc(db, 'productos', producto.id);
+        const productoRef = doc(db, 'usuarios', userId, 'productos', producto.id);
         const productoDoc = await getDoc(productoRef);
         const productoData = productoDoc.data();
 
         // 2. Agregar a la colección de desactivados
-        const desactivadosRef = collection(db, 'desactivados');
+        const desactivadosRef = collection(db, 'usuarios', userId, 'desactivados');
         await addDoc(desactivadosRef, {
           ...productoData,
           fechaDesactivacion: new Date(),
@@ -202,7 +226,7 @@ const ResumenGastos = () => {
 
         // 3. Actualizar el documento de la tienda
         if (productoData.tiendaId) {
-          const tiendaRef = doc(db, 'tiendas', productoData.tiendaId);
+          const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', productoData.tiendaId);
           const tiendaDoc = await getDoc(tiendaRef);
           
           if (tiendaDoc.exists()) {
@@ -229,7 +253,12 @@ const ResumenGastos = () => {
 
   const obtenerProductosDesactivados = async () => {
     try {
-      const desactivadosRef = collection(db, 'desactivados');
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      const userId = auth.currentUser.uid;
+      const desactivadosRef = collection(db, 'usuarios', userId, 'desactivados');
       const q = query(desactivadosRef);
       const snapshot = await getDocs(q);
       

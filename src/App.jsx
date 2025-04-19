@@ -10,6 +10,7 @@ import ComparadorPrecios from "./components/ComparadorPrecios";
 import MigracionDatos from './components/MigracionDatos';
 import ResumenGastos from './components/ResumenGastos';
 import Soporte from './components/Soporte';
+import Asistencia from './components/Asistencia';
 import PruebaSeguridad from './tests/PruebaSeguridad';
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
   if (cargando) return <p>Cargando...</p>;
 
   return (
-    <Router>
+    <Router basename="/Mercado">
       <Routes>
         <Route path="/" element={usuario ? <Navigate to="/seleccionar-tienda" /> : <Login />} />
         <Route path="/seleccionar-tienda" element={usuario ? <SeleccionarTienda /> : <Navigate to="/" />} />
@@ -38,7 +39,9 @@ function App() {
         <Route path="/migracion" element={<MigracionDatos />} />
         <Route path="/resumen-gastos" element={usuario ? <ResumenGastos /> : <Navigate to="/" />} />
         <Route path="/soporte" element={usuario ? <Soporte /> : <Navigate to="/" />} />
+        <Route path="/asistencia" element={usuario ? <Asistencia /> : <Navigate to="/" />} />
         <Route path="/prueba-seguridad" element={<PruebaSeguridad />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

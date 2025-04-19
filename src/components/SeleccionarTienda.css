@@ -583,3 +583,19 @@ td button:last-child:hover {
   border-radius: 4px;
   cursor: pointer;
 }
+
+.btn-asistencia {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-asistencia:hover {
+  background-color: #2980b9;
+}

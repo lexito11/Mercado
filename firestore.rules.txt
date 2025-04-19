@@ -1,0 +1,24 @@
+// Reglas de seguridad de Firestore para solicitudes de asistencia
+// Copiar y pegar estas reglas en la consola de Firebase
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Permitir acceso a usuarios autenticados para leer y escribir sus propios datos
+    match /usuarios/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Permitir a los usuarios autenticados crear solicitudes de asistencia
+    match /solicitudes_asistencia/{solicitudId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || request.auth.token.admin == true);
+    }
+    
+    // Regla básica para bloquear acceso por defecto
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

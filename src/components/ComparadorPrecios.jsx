@@ -170,8 +170,13 @@ const ComparadorPrecios = () => {
       // Asegurarse de que mes1 sea el más antiguo y mes2 el más reciente
       if (mes2 < mes1) {
         // Intercambiar los meses si están en orden incorrecto
-        [mes1, mes2] = [mes2, mes1];
-        [productosMes1, productosMes2] = [productosMes2, productosMes1];
+        let tempMes = mes1;
+        mes1 = mes2;
+        mes2 = tempMes;
+        
+        let tempProductos = productosMes1;
+        productosMes1 = productosMes2;
+        productosMes2 = tempProductos;
       }
 
       // Limpiar los nombres de productos (eliminar espacios en blanco)

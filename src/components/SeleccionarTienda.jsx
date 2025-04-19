@@ -70,7 +70,9 @@ function SeleccionarTienda() {
       setProductosEliminados(productosEliminadosGuardados);
       
       // Obtener tiendas de Firebase
-      const querySnapshot = await getDocs(collection(db, "tiendas"));
+      const userId = auth.currentUser.uid;
+      const tiendasRef = collection(db, 'usuarios', userId, 'tiendas');
+      const querySnapshot = await getDocs(tiendasRef);
       const tiendasCargadas = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -108,7 +110,8 @@ function SeleccionarTienda() {
         console.log('Cargando automáticamente la última tienda seleccionada:', ultimaTiendaId);
         
         try {
-          const tiendaRef = doc(db, "tiendas", ultimaTiendaId);
+          const userId = auth.currentUser.uid;
+          const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', ultimaTiendaId);
           const tiendaSnapshot = await getDoc(tiendaRef);
           
           if (tiendaSnapshot.exists()) {
@@ -179,7 +182,8 @@ function SeleccionarTienda() {
     if (nuevaTienda.trim() === "") return;
 
     try {
-      const tiendasRef = collection(db, "tiendas");
+      const userId = auth.currentUser.uid;
+      const tiendasRef = collection(db, 'usuarios', userId, 'tiendas');
       const docRef = await addDoc(tiendasRef, { nombre: nuevaTienda, productos: [] });
       setTiendas([...tiendas, { id: docRef.id, nombre: nuevaTienda, productos: [] }]);
       setNuevaTienda("");
@@ -192,7 +196,8 @@ function SeleccionarTienda() {
     if (!tiendaSeleccionada || !nuevoProducto.nombre.trim()) return;
   
     try {
-      const tiendaRef = doc(db, "tiendas", tiendaSeleccionada.id);
+      const userId = auth.currentUser.uid;
+      const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', tiendaSeleccionada.id);
       
       if (productoEditando !== null) {
         // Si estamos editando, reemplazamos el producto en su posición original
@@ -278,12 +283,13 @@ function SeleccionarTienda() {
         };
 
         // 3. Guardar en Firebase
-        const desactivadosRef = collection(db, "desactivados");
+        const userId = auth.currentUser.uid;
+        const desactivadosRef = collection(db, 'usuarios', userId, 'desactivados');
         await addDoc(desactivadosRef, productoDesactivado);
 
         // 4. Actualizar la lista de productos activos en Firebase
         const nuevaListaProductos = tiendaSeleccionada.productos.filter((_, i) => i !== index);
-        const tiendaRef = doc(db, "tiendas", tiendaSeleccionada.id);
+        const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', tiendaSeleccionada.id);
         await updateDoc(tiendaRef, { productos: nuevaListaProductos });
 
         // 5. Actualizar estados locales
@@ -340,7 +346,8 @@ function SeleccionarTienda() {
 
   const cargarProductosDesactivados = async () => {
     try {
-      const desactivadosRef = collection(db, "desactivados");
+      const userId = auth.currentUser.uid;
+      const desactivadosRef = collection(db, 'usuarios', userId, 'desactivados');
       const querySnapshot = await getDocs(desactivadosRef);
       
       console.log("Colección desactivados existe:", !querySnapshot.empty);
@@ -369,7 +376,8 @@ function SeleccionarTienda() {
 
   const seleccionarTienda = async (tienda) => {
     try {
-      const tiendaRef = doc(db, "tiendas", tienda.id);
+      const userId = auth.currentUser.uid;
+      const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', tienda.id);
       const tiendaSnapshot = await getDoc(tiendaRef);
       
       if (!tiendaSnapshot.exists()) {
@@ -406,7 +414,8 @@ function SeleccionarTienda() {
 
   const verHistorialProductos = async () => {
     try {
-      const historialRef = doc(db, "productos", tiendaSeleccionada.id);
+      const userId = auth.currentUser.uid;
+      const historialRef = doc(db, 'usuarios', userId, 'productos', tiendaSeleccionada.id);
       const historialDoc = await getDoc(historialRef);
       
       if (historialDoc.exists()) {
@@ -519,10 +528,11 @@ function SeleccionarTienda() {
     if (!tiendaSeleccionada || !productoEditando) return;
 
     try {
+      const userId = auth.currentUser.uid;
       const nuevosProductos = [...tiendaSeleccionada.productos];
       nuevosProductos[productoEditando.index] = productoEditando;
 
-      const tiendaRef = doc(db, "tiendas", tiendaSeleccionada.id);
+      const tiendaRef = doc(db, 'usuarios', userId, 'tiendas', tiendaSeleccionada.id);
       await updateDoc(tiendaRef, { productos: nuevosProductos });
 
       setTiendaSeleccionada({
@@ -747,6 +757,11 @@ function SeleccionarTienda() {
       )}
       <div className="cerrar-sesion-container">
         <BotonCerrarSesion />
+        <Link to="/asistencia" style={{ textDecoration: 'none' }}>
+          <button className="btn-asistencia">
+            Asistencia
+          </button>
+        </Link>
         <Link to="/prueba-seguridad" style={{ textDecoration: 'none' }}>
           <button className="btn-prueba-seguridad">
             Pruebas de Seguridad
