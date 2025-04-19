@@ -642,58 +642,114 @@ td button:last-child:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Media Queries para Responsive Design */
+/* Media Queries mejorados para dispositivos móviles */
 @media screen and (max-width: 768px) {
   .seleccionar-tienda-container {
-    padding: 20px;
+    padding: 15px;
     margin: 10px;
+    border-radius: 8px;
   }
 
   .titulo-principal {
-    font-size: 32px;
-    margin-bottom: 30px;
+    font-size: 28px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
   }
 
   .agregar-tienda {
     flex-direction: column;
+    padding: 15px;
     gap: 10px;
   }
 
   .agregar-tienda input {
-    margin-right: 0;
-    margin-bottom: 10px;
+    margin: 0;
     width: 100%;
+    font-size: 14px;
   }
 
   .agregar-tienda button {
     width: 100%;
+    margin-top: 10px;
   }
 
-  .botones-inferiores {
-    flex-direction: column;
-    gap: 10px;
-    padding: 0;
-  }
-
-  .btn-asistencia,
-  .btn-prueba-seguridad {
-    width: 100%;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .titulo-principal {
-    font-size: 28px;
+  .lista-tiendas {
+    gap: 8px;
   }
 
   .lista-tiendas button {
     padding: 12px;
     font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  .botones-inferiores {
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    margin-top: 15px;
   }
 
   .btn-asistencia,
   .btn-prueba-seguridad {
-    padding: 10px 20px;
+    width: 100%;
+    padding: 12px;
     font-size: 14px;
   }
+
+  /* Mejoras para el scroll en móviles */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevenir zoom en inputs en iOS */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  select {
+    font-size: 16px !important;
+  }
 }
+
+/* Ajustes específicos para pantallas muy pequeñas */
+@media screen and (max-width: 360px) {
+  .titulo-principal {
+    font-size: 24px;
+  }
+
+  .seleccionar-tienda-container {
+    padding: 10px;
+    margin: 5px;
+  }
+
+  .lista-tiendas button {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .btn-asistencia,
+  .btn-prueba-seguridad {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .seleccionar-tienda-container {
+    margin: 5px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .titulo-principal {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .lista-tiendas {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
