@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signInWithPopup, 
+  signInWithRedirect,
+  GoogleAuthProvider,
+  getRedirectResult
+} from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
@@ -10,6 +17,23 @@ const Login = () => {
   const [isRegistrando, setIsRegistrando] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Detectar si es dispositivo móvil
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  useEffect(() => {
+    // Manejar el resultado de la redirección
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          navigate("/seleccionar-tienda");
+        }
+      })
+      .catch((error) => {
+        console.error("Error en redirección:", error);
+        setError("Error en la autenticación: " + error.message);
+      });
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,8 +56,17 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      navigate("/seleccionar-tienda");
+      
+      if (isMobile) {
+        // Usar redirección para dispositivos móviles
+        await signInWithRedirect(auth, provider);
+      } else {
+        // Usar popup para desktop
+        const result = await signInWithPopup(auth, provider);
+        if (result) {
+          navigate("/seleccionar-tienda");
+        }
+      }
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error);
       setError("Error al iniciar sesión con Google: " + error.message);
