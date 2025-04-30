@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import "./SeleccionarTienda.css";
 import "./styles/nav-buttons.css";
@@ -27,6 +27,10 @@ function SeleccionarTienda() {
     categoria: ''
   });
   const navigate = useNavigate();
+  const tablaProductosRef = useRef(null);
+  const tablaDesactivadosRef = useRef(null);
+  const indicadorProductosRef = useRef(null);
+  const indicadorDesactivadosRef = useRef(null);
 
   // Esta parte es opcional: detectar cierre de ventana
   const handleVisibilityChange = () => {
@@ -564,6 +568,78 @@ function SeleccionarTienda() {
     });
   };
 
+  // Función para actualizar posición del indicador de scroll
+  const actualizarIndicadorScroll = (tablaRef, indicadorRef) => {
+    if (!tablaRef.current || !indicadorRef.current) return;
+    
+    const tabla = tablaRef.current;
+    const indicador = indicadorRef.current;
+    
+    // En pantallas grandes, no mostrar el indicador para la sección de productos desactivados
+    if (window.innerWidth >= 992 && indicador.parentNode.closest('.productos-desactivados-container')) {
+      indicador.parentNode.style.display = 'none';
+      return;
+    }
+    
+    // Calcular la posición del scroll
+    const scrollLeft = tabla.scrollLeft;
+    const maxScroll = tabla.scrollWidth - tabla.clientWidth;
+    
+    // Si no hay scroll horizontal, ocultar el indicador
+    if (maxScroll <= 0) {
+      indicador.parentNode.style.display = 'none';
+      return;
+    } else {
+      indicador.parentNode.style.display = 'block';
+    }
+    
+    // Calcular la nueva posición del indicador (máximo 70% del ancho)
+    const scrollRatio = scrollLeft / maxScroll;
+    const maxPosition = 70; // porcentaje máximo de desplazamiento
+    const newPosition = scrollRatio * maxPosition;
+    
+    // Actualizar la posición del indicador
+    indicador.style.left = `${newPosition}%`;
+  };
+
+  // Agregar listeners para detectar scroll
+  useEffect(() => {
+    const productosContainer = tablaProductosRef.current;
+    const desactivadosContainer = tablaDesactivadosRef.current;
+    
+    if (productosContainer) {
+      productosContainer.addEventListener('scroll', () => 
+        actualizarIndicadorScroll(tablaProductosRef, indicadorProductosRef)
+      );
+      
+      // Comprobar inicialmente
+      actualizarIndicadorScroll(tablaProductosRef, indicadorProductosRef);
+    }
+    
+    if (mostrarDesactivados && desactivadosContainer) {
+      desactivadosContainer.addEventListener('scroll', () => 
+        actualizarIndicadorScroll(tablaDesactivadosRef, indicadorDesactivadosRef)
+      );
+      
+      // Comprobar inicialmente
+      actualizarIndicadorScroll(tablaDesactivadosRef, indicadorDesactivadosRef);
+    }
+    
+    return () => {
+      if (productosContainer) {
+        productosContainer.removeEventListener('scroll', () => 
+          actualizarIndicadorScroll(tablaProductosRef, indicadorProductosRef)
+        );
+      }
+      
+      if (desactivadosContainer) {
+        desactivadosContainer.removeEventListener('scroll', () => 
+          actualizarIndicadorScroll(tablaDesactivadosRef, indicadorDesactivadosRef)
+        );
+      }
+    };
+  }, [tiendaSeleccionada, mostrarDesactivados]);
+
   if (cargando) {
     return <div className="loading">Cargando...</div>;
   }
@@ -644,88 +720,99 @@ function SeleccionarTienda() {
           </div>
 
           <h3 className="titulo-lista-productos">Lista de Productos</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Marca</th>
-                <th>Precio</th>
-                <th>Unidad</th>
-                <th>Categoría</th>
-                <th>Fecha de Compra</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtrarProductos(tiendaSeleccionada.productos).map((producto, index) => (
-                <tr key={index}>
-                  <td>{producto.nombre}</td>
-                  <td>{producto.marca}</td>
-                  <td>{producto.precio}</td>
-                  <td>{producto.unidad}</td>
-                  <td>{producto.categoria}</td>
-                  <td>{producto.fechaCompra ? new Date(producto.fechaCompra).toLocaleDateString() : 'No disponible'}</td>
-                  <td>
-                    <button onClick={() => editarProducto(index)}>Editar</button>
-                    <button onClick={() => eliminarProducto(index)}>Desactivar</button>
-                  </td>
+          <div className="tabla-direccion">
+            <div className="indicador-scroll" ref={indicadorProductosRef}></div>
+          </div>
+          <div className="tabla-productos-container" ref={tablaProductosRef}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Marca</th>
+                  <th>Precio</th>
+                  <th>Unidad</th>
+                  <th>Categoría</th>
+                  <th>Fecha de Compra</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtrarProductos(tiendaSeleccionada.productos).map((producto, index) => (
+                  <tr key={index}>
+                    <td>{producto.nombre}</td>
+                    <td>{producto.marca}</td>
+                    <td>{producto.precio}</td>
+                    <td>{producto.unidad}</td>
+                    <td>{producto.categoria}</td>
+                    <td>{producto.fechaCompra ? new Date(producto.fechaCompra).toLocaleDateString() : 'No disponible'}</td>
+                    <td>
+                      <button onClick={() => editarProducto(index)}>Editar</button>
+                      <button onClick={() => eliminarProducto(index)}>Desactivar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <div className="productos-desactivados-container">
             <div className="productos-desactivados-header">
-              <h3>Productos Desactivados</h3>
-              <div>
-                <button onClick={async () => {
+              <h3 className="titulo-lista-productos">Productos Desactivados</h3>
+              <button 
+                onClick={async () => {
                   if (!mostrarDesactivados) {
                     // Si vamos a mostrar los productos, recargamos desde Firebase
                     const productosDesactivados = await cargarProductosDesactivados();
                     setProductosEliminados(productosDesactivados);
                   }
                   setMostrarDesactivados(!mostrarDesactivados);
-                }} className="btn-productos-desactivados">
-                  {mostrarDesactivados ? 'Ocultar Productos Desactivados' : 'Ver Productos Desactivados'}
-                </button>
-              </div>
+                }} 
+                className="btn-productos-desactivados"
+              >
+                {mostrarDesactivados ? 'Ocultar Productos' : 'Ver Productos'}
+              </button>
             </div>
             
             {mostrarDesactivados && (
-              <div className="productos-desactivados-tabla">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Marca</th>
-                      <th>Precio</th>
-                      <th>Unidad</th>
-                      <th>Categoría</th>
-                      <th>Fecha Desactivación</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {productosEliminados.map((producto, index) => (
-                      <tr key={producto.id || index}>
-                        <td>{producto.nombre}</td>
-                        <td>{producto.marca}</td>
-                        <td>{producto.precio}</td>
-                        <td>{producto.unidad}</td>
-                        <td>{producto.categoria}</td>
-                        <td>{
-                          (() => {
-                            try {
-                              return new Date(producto.fechaDesactivacion).toLocaleDateString();
-                            } catch (e) {
-                              return 'Fecha no disponible';
-                            }
-                          })()
-                        }</td>
+              <>
+                <div className="tabla-direccion">
+                  <div className="indicador-scroll" ref={indicadorDesactivadosRef}></div>
+                </div>
+                <div className="productos-desactivados-tabla tabla-productos-container" ref={tablaDesactivadosRef}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Marca</th>
+                        <th>Precio</th>
+                        <th>Unidad</th>
+                        <th>Categoría</th>
+                        <th>Fecha Desactivación</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {productosEliminados.map((producto, index) => (
+                        <tr key={producto.id || index}>
+                          <td>{producto.nombre}</td>
+                          <td>{producto.marca}</td>
+                          <td>{producto.precio}</td>
+                          <td>{producto.unidad}</td>
+                          <td>{producto.categoria}</td>
+                          <td>{
+                            (() => {
+                              try {
+                                return new Date(producto.fechaDesactivacion).toLocaleDateString();
+                              } catch (e) {
+                                return 'Fecha no disponible';
+                              }
+                            })()
+                          }</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -756,13 +843,15 @@ function SeleccionarTienda() {
         </div>
       )}
       <div className="cerrar-sesion-container">
-        <BotonCerrarSesion />
-        <Link to="/asistencia" style={{ textDecoration: 'none' }}>
+        <div style={{width: '100%', maxWidth: '250px', display: 'flex', justifyContent: 'center', margin: '0', padding: '0'}}>
+          <BotonCerrarSesion />
+        </div>
+        <Link to="/asistencia" style={{ textDecoration: 'none', width: '100%', maxWidth: '250px', display: 'flex', justifyContent: 'center', margin: '0', padding: '0' }}>
           <button className="btn-asistencia">
             Asistencia
           </button>
         </Link>
-        <Link to="/prueba-seguridad" style={{ textDecoration: 'none' }}>
+        <Link to="/prueba-seguridad" style={{ textDecoration: 'none', width: '100%', maxWidth: '250px', display: 'flex', justifyContent: 'center', margin: '0', padding: '0' }}>
           <button className="btn-prueba-seguridad">
             Pruebas de Seguridad
           </button>

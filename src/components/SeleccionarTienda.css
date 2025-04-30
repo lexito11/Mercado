@@ -306,24 +306,33 @@ td button:last-child:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 25px;
   width: 100%;
-  padding: 20px;
+  padding: 35px 20px;
+  margin-bottom: 30px;
+}
+
+.cerrar-sesion-container > * {
+  margin: 0;
+  padding: 0;
 }
 
 .btn-cerrar-sesion,
 .btn-asistencia,
 .btn-prueba-seguridad {
-  width: calc(100% - 40px);
-  margin: 0 20px;
-  padding: 12px 0;
+  width: 100%;
+  max-width: 250px;
+  padding: 5px 0;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   text-align: center;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .btn-cerrar-sesion {
@@ -355,10 +364,6 @@ td button:last-child:hover {
   align-items: center;
   width: 100%;
   margin-bottom: 30px;
-}
-
-.cerrar-sesion-container > :last-child {
-  margin-left: 20px;
 }
 
 /* Estilos para los inputs de agregar productos */
@@ -468,13 +473,22 @@ td button:last-child:hover {
 
 /* Botón - Ver productos desactivados */
 .btn-productos-desactivados {
-  margin-right: 10px;
   background-color: #d32f2f;
   color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  min-width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-productos-desactivados:hover {
+  background-color: #b71c1c;
 }
 
 /* Botón - Volver a lista de tiendas */
@@ -555,26 +569,65 @@ td button:last-child:hover {
 }
 
 /* Sección para productos desactivados */
-.productos-desactivados-header {
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center;
-}
-
 .productos-desactivados-container {
-  margin-top: 20px; 
-  border-top: 1px solid #ccc; 
-  padding-top: 10px;
+  margin-top: 25px; 
+  border-top: 1px solid #ddd; 
+  padding-top: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.productos-desactivados-tabla {
-  margin-top: 10px;
+/* Layout para grandes pantallas (por defecto) */
+.productos-desactivados-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.productos-desactivados-header h3 {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+/* Layout para pantallas pequeñas */
+@media screen and (max-width: 767px) {
+  .productos-desactivados-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .productos-desactivados-header h3 {
+    margin-bottom: 10px;
+    font-size: 0px;
+    text-align: center;
+  }
+  
+  .btn-productos-desactivados {
+    margin: 0 auto;
+  }
 }
 
 /* Título "Lista de Productos" */
 .titulo-lista-productos {
   color: #000000;
   font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 32px;
 }
 
 /* Botón de pruebas de seguridad */
@@ -712,26 +765,107 @@ td button:last-child:hover {
   }
 
   .cerrar-sesion-container {
-    padding: 10px;
+    padding: 20px 10px;
+    gap: 15px;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background-color: white;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+    margin: 0;
   }
 
   .btn-cerrar-sesion,
   .btn-asistencia,
   .btn-prueba-seguridad {
-    width: calc(100% - 20px);
-    margin: 0 10px;
-    padding: 15px 0;
+    width: 90%;
+    font-size: 15px;
+    padding: 5px 0;
+    margin: 0;
   }
-
+  
+  /* Asegurar que los contenedores de los botones tengan el mismo espaciado en móvil */
+  .cerrar-sesion-container > * {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
   /* Agregar padding al contenedor principal para evitar que los botones tapen contenido */
   .seleccionar-tienda-container {
     padding-bottom: 200px;
+  }
+
+  /* Convertir tablas en responsive */
+  .tabla-productos-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 100%;
+    font-size: 14px;
+  }
+  
+  th, td {
+    padding: 10px 8px;
+    white-space: nowrap;
+  }
+  
+  /* Reducir ancho de columnas específicas */
+  th:nth-child(2), td:nth-child(2), /* Precio */
+  th:nth-child(3), td:nth-child(3), /* Unidad */
+  th:nth-child(4), td:nth-child(4), /* Categoría */
+  th:nth-child(5), td:nth-child(5) { /* Fecha */
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  th:first-child, td:first-child { /* Nombre */
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Estilos para los botones en la tabla */
+  td button {
+    padding: 6px;
+    font-size: 12px;
+    min-width: 60px;
+  }
+
+  .flecha-verde {
+    width: 20px;
+    height: 20px;
+    margin: 0 3px;
+  }
+
+  .productos-desactivados-header {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .productos-desactivados-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  .btn-productos-desactivados {
+    padding: 5px 8px;
+    font-size: 15px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  th, td {
+    padding: 8px 5px;
+    font-size: 12px;
   }
 }
 
@@ -787,5 +921,99 @@ td button:last-child:hover {
     max-height: 50vh;
     overflow-y: auto;
   }
+}
+
+.tabla-direccion {
+  position: relative;
+  margin: 5px 0 8px 0;
+  background-color: #f4f6f8;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.indicador-scroll {
+  position: absolute;
+  top: 0;
+  left: 0; /* Posición inicial, se ajustará con JavaScript */
+  height: 100%;
+  width: 30%;
+  background: linear-gradient(to right, #2ecc71, #27ae60);
+  border-radius: 4px;
+  transition: left 0.1s ease-out;
+}
+
+.indicador-scroll::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background-color: #27ae60;
+  clip-path: polygon(0 0, 0% 100%, 100% 50%);
+}
+
+/* Ocultar el indicador de scroll en pantallas grandes */
+@media screen and (min-width: 992px) {
+  .productos-desactivados-container {
+    overflow: visible;
+    overflow-x: visible;
+  }
+  
+  .productos-desactivados-container .tabla-direccion {
+    display: none;
+  }
+  
+  /* Contenedor para evitar desbordamiento */
+  .productos-desactivados-header {
+    width: 100%;
+    max-width: 100%;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+  }
+  
+  /* Aplicar el mismo tamaño de fuente que "Lista de Productos" */
+  .productos-desactivados-header h3 {
+    margin-right: 10px;
+    max-width: 60%;
+    font-size: inherit; /* Usar el tamaño de fuente heredado, igual que Lista de Productos */
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .tabla-direccion {
+    height: 6px;
+  }
+  
+  .indicador-scroll::after {
+    width: 6px;
+  }
+}
+
+/* Estilos específicos para pantallas grandes */
+@media screen and (min-width: 992px) {
+  .cerrar-sesion-container {
+    gap: 30px;
+    padding: 45px 20px;
+  }
+  
+  .btn-cerrar-sesion,
+  .btn-asistencia,
+  .btn-prueba-seguridad {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .btn-cerrar-sesion:hover,
+  .btn-asistencia:hover,
+  .btn-prueba-seguridad:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+}
+
+.productos-desactivados-tabla {
+  margin-top: 10px;
+  min-width: 100%;
 }
 
